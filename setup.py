@@ -2,11 +2,11 @@
 from setuptools import setup
 
 setup(
-    name='django-sda_donation_tracker',
+    name='django-donation_tracker',
     version='2.0',
     author='Games Done Quick',
     author_email='tracker@gamesdonequick.com',
-    packages=['sda_donation_tracker'],
+    packages=['donation_tracker'],
     url='https://github.com/uraniumanchor/sda-donation-tracker-2',
     license='GPLv2',
     description='A Django app to assist in tracking donations for live broadcast events.',
