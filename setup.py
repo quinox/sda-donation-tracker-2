@@ -6,7 +6,7 @@ setup(
     version='2.0',
     author='Games Done Quick',
     author_email='tracker@gamesdonequick.com',
-    packages=['donation_tracker'],
+    packages=['donation_tracker', 'donation_tracker.models'],
     url='https://github.com/uraniumanchor/sda-donation-tracker-2',
     license='GPLv2',
     description='A Django app to assist in tracking donations for live broadcast events.',
@@ -14,7 +14,7 @@ setup(
     zip_safe=False,
     include_package_data=True,
     package_data={'': ['README.rst']},
-    install_requires=['django>=1.6', 'django-post_office', 'South>=1.0', 'django-ajax-selects', 'django-adminplus'],
+    install_requires=['django>=1.6, <1.7', 'django-post_office', 'South>=1.0', 'django-ajax-selects', 'django-adminplus'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
