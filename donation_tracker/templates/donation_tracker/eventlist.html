@@ -1,0 +1,28 @@
+{% extends "tracker/index.html" %}
+{% load i18n %}
+{% load url from future %}
+
+{% block title %}{% trans "Event List" %}{% endblock %}
+
+{% block content %}
+	<div class="title">
+		<b>
+			{% trans "Event List" %}
+		</b>
+	</div>
+	<table>
+		<tr>
+			<td>
+				<a href="{% url 'donation_tracker.views.index' event='' %}">{% trans "All Events" %}</a>
+			</td>
+		</tr>
+	{% for event in events %}
+		<tr>
+			<td>
+				<a href="{% url 'donation_tracker.views.index' event=event.id %}">{{ event.name }}</a>
+			</td>
+		</tr>
+	{% endfor %}
+	</table>
+	{% include "tracker/navfooter.html" %}
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "tracker/index.html" %}
+{% load donation_tags %}
+{% load i18n %}
+{% load url from future %}
+
+{% block title %}{% trans "Run Index" %} -- {{ event.name }}{% endblock %}
+
+{% block content %}
+	<div class="title">
+		<b>
+			{% trans "Event" %}:
+		</b>
+		{{ event.name }}
+		<b>
+			{% trans "Run Index" %}
+		</b>
+	</div>
+	<table>
+		<tr>
+			<th>
+				{% trans "Name" %}
+			</th>
+			<th>
+				{% trans "Players" %}
+			</th>
+			<th>
+				{% trans "Description" %}
+			</th>
+			<th>
+				{% trans "Start Time" %}
+			</th>
+			<th>
+				{% trans "End Time" %}
+			</th>
+			<th>
+				{% trans "Bid Wars" %}
+			</th>
+		</tr>
+	{% for run in runs %}
+		<tr>
+			<td>
+				<a href="{% url 'donation_tracker.views.run' id=run.id %}">{{ run.name }}</a>
+			</td>
+			<td>
+				{{ run.deprecated_runners }}
+			</td>
+			<td>
+				{{ run.description|forumfilter }}
+			</td>
+			<td>
+				{% datetime run.starttime %}
+			</td>
+			<td>
+				{% datetime run.endtime %}
+			</td>
+			{% autoescape off %}
+			<td>
+				{% if run.hasbids %}<b>{% trans "Yes" %}</b>{% else %}{% trans "No" %}{% endif %}
+			</td>
+			{% endautoescape %}
+		</tr>
+	{% endfor %}
+	</table>
+	{% include "tracker/navfooter.html" %}
+{% endblock %}

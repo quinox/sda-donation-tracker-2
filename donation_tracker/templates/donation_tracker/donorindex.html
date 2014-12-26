@@ -1,0 +1,61 @@
+{% extends "tracker/index.html" %}
+{% load donation_tags %}
+{% load i18n %}
+{% load url from future %}
+
+{% block title %}{% trans "Donor Index" %} -- {{ event.name|title }}{% endblock %}
+
+{% block content %}
+	<div class="title">
+		<b>
+			{% trans "Event" %}:
+		</b>
+		{{ event.name|title }}
+		<b>
+			{% trans "Donor Index" %}
+		</b>
+	</div>
+	<table>
+		<tr>
+			<th>
+				{% trans "Name" %}{% sort "name" page %}
+			</th>
+			{% if perms.tracker.view_emails %}
+				<th>
+					{% trans "Email" %}
+				</th>
+			{% endif %}
+			<th>
+				{% trans "Alias" %}
+			</th>
+			<th>
+				{% trans "Total" %}{% sort "total" page %}
+			</th>
+			<th>
+				{% trans "Max" %}{% sort "max" page %}/{% trans "Avg" %}{% sort "avg" page %} {% trans "Donation" %}
+			</th>
+		</tr>
+	{% for donor in donors %}
+		{% if donor.count > 0 %}
+			<tr>
+				<td>
+					<a href="{% url 'donation_tracker.views.donor' id=donor.id event=event.id %}">{% name donor %}</a>
+				</td>
+				{% email donor.email "<td>.</td>" %}
+				<td>
+					{{ donor.alias }}
+				</td>
+				<td>
+					{{ donor.amount|money }} ({{ donor.count }})
+				</td>
+				<td>
+					{{ donor.max|money }}/{{ donor.avg|money }}
+				</td>
+			</tr>
+		{% endif %}
+	{% endfor %}
+	</table>
+
+	{% include "tracker/pagefooter.html" %}
+	{% include "tracker/navfooter.html" %}
+{% endblock %}

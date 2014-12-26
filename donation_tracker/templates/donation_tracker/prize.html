@@ -1,0 +1,100 @@
+{% extends "tracker/index.html" %}
+{% load donation_tags %}
+{% load i18n %}
+{% load url from future %}
+
+{% block title %}{% trans "Prize Detail" %} -- {{ event.name|title }}{% endblock %}
+
+{% block content %}
+	<div class="title">
+		<b>
+			{% trans "Prize" %}:
+		</b>
+		{{ prize.name|title }}
+		<b>
+			{% trans "Minimum Bid" %}:
+		</b>
+		{{ prize.minimumbid|money }}
+		{% if category %}
+		<b>
+			{% trans "Category" %}:
+		</b>
+			{{ category }}
+		{% endif %}
+		{% if prize.image %}
+		<b>
+			{% trans "Image" %}:
+		</b>
+		<a href="{{ prize.image }}">{% trans "Link" %}</a>
+		{% endif %}
+	</div>
+  {% if prize.winners.exists %}
+    <table>
+      <th>
+        {% trans "Winner(s)" %}
+      </th>
+      {% for winner in prize.winners.all %}
+        <tr>
+          <td>
+            <a href="{% url 'donation_tracker.views.donor' id=winner.id event=event.id %}">
+              {% if winner.lastname %}
+                {% name winner %}
+              {% else %}
+                {% trans "Unknown" %}
+              {% endif %}
+            </a>
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+  
+  {% if prize.provided %}
+		<table>
+      <th>
+        {% trans "Contributed By" %}
+      </th>
+      <tr>
+        <td>
+           {{ prize.provided }}
+        </td>
+      </tr>
+    </table>
+    {% endif %}
+	{% if games %}
+	<table>
+		<tr>
+			<th align="center">
+				{% trans "Games" %}
+			</th>
+		</tr>
+		{% for game in games %}
+		<tr>
+			<td>
+				<a href="{% url 'donation_tracker.views.run' id=game.id %}">
+					{{ game.name|title }}
+				</a>
+			</td>
+		</tr>
+		{% endfor %}
+	</table>
+	{% endif %}
+  {% if prize.description %}
+	<table>
+		<tr>
+			<th align="center">
+				<b>
+					{% trans "Description" %}
+				</b>
+			</th>
+		</tr>
+		<tr>
+			<td>
+				{{ prize.description|forumfilter }}
+			</td>
+		</tr>
+	</table>
+  {% endif %}
+	<p align="center"><a href="{% url 'donation_tracker.views.prizeindex' event=prize.event.id %}">{% trans "Back to Prize Index" %}</a></p>
+	{% include "tracker/navfooter.html" %}
+{% endblock %}
