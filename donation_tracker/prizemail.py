@@ -1,6 +1,6 @@
 import django.core.mail as mail
 from models import *
-import tracker.filters as filters
+import donation_tracker.filters as filters
 import smtplib
 import settings
 import time

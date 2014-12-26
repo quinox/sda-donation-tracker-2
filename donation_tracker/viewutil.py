@@ -1,4 +1,4 @@
-from tracker.models import *
+from donation_tracker.models import *
 import filters
 from django.db.models import Count,Sum,Max,Avg,Q
 from decimal import Decimal

@@ -6,15 +6,15 @@ Replace this with more appropriate tests for your application.
 """
 
 from django.test import TestCase
-import tracker.randgen as randgen
+import donation_tracker.randgen as randgen
 from dateutil.parser import parse as parse_date
 import random
 import pytz
-import tracker.models
+import donation_tracker.models
 import datetime
-import tracker.viewutil as viewutil
+import donation_tracker.viewutil as viewutil
 from decimal import Decimal
-import tracker.filters as filters
+import donation_tracker.filters as filters
 
 class SimpleTest(TestCase):
   def test_basic_addition(self):

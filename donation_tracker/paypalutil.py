@@ -1,6 +1,6 @@
 from paypal.standard.ipn.forms import PayPalIPNForm
 from paypal.standard.ipn.models import PayPalIPN
-from tracker.models import *
+from donation_tracker.models import *
 from datetime import *
 import random
 

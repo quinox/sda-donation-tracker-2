@@ -13,13 +13,13 @@
 	<table>
 		<tr>
 			<td>
-				<a href="{% url 'tracker.views.index' event='' %}">{% trans "All Events" %}</a>
+				<a href="{% url 'donation_tracker.views.index' event='' %}">{% trans "All Events" %}</a>
 			</td>
 		</tr>
 	{% for event in events %}
 		<tr>
 			<td>
-				<a href="{% url 'tracker.views.index' event=event.id %}">{{ event.name }}</a>
+				<a href="{% url 'donation_tracker.views.index' event=event.id %}">{{ event.name }}</a>
 			</td>
 		</tr>
 	{% endfor %}

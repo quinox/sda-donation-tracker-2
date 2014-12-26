@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 
-from tracker.validators import *
+from donation_tracker.validators import *
 
 from decimal import Decimal
 
@@ -76,7 +76,7 @@ class Event(models.Model):
     if not self.scheduleid:
       self.scheduleid = None
   class Meta:
-    app_label = 'tracker'
+    app_label = 'donation_tracker'
     get_latest_by = 'date'
     permissions = (
       ('can_edit_locked_events', 'Can edit locked events'),
@@ -87,7 +87,7 @@ class PostbackURL(models.Model):
   event = models.ForeignKey('Event', verbose_name='Event', null=False, blank=False, related_name='postbacks')
   url = models.URLField(blank=False,null=False,verbose_name='URL')
   class Meta:
-    app_label = 'tracker'
+    app_label = 'donation_tracker'
       
 class SpeedRunManager(models.Manager):
   def get_by_natural_key(self, name, event):
@@ -103,7 +103,7 @@ class SpeedRun(models.Model):
   endtime = models.DateTimeField(verbose_name='End Time')
   runners = models.ManyToManyField('Donor', blank=True, null=True)
   class Meta:
-    app_label = 'tracker'
+    app_label = 'donation_tracker'
     verbose_name = 'Speed Run'
     unique_together = ( 'name','event' )
     ordering = [ 'event__date', 'starttime' ]

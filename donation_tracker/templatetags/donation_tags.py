@@ -337,7 +337,7 @@ def bid_short_cached(bid, showEvent=False, showRun=False, showOptions=False, add
     showRun = False
   if not showRun:
     bidNameSpan += 1
-  return template.loader.render_to_string('tracker/bidshort.html', { 'bid': bid, 'event': event, 'options': options, 'bidNameSpan': bidNameSpan, 'showEvent': showEvent, 'showRun': showRun, 'addTable': addTable, 'showOptions': showOptions, 'showMain': showMain })
+  return template.loader.render_to_string('donation_tracker/bidshort.html', { 'bid': bid, 'event': event, 'options': options, 'bidNameSpan': bidNameSpan, 'showEvent': showEvent, 'showRun': showRun, 'addTable': addTable, 'showOptions': showOptions, 'showMain': showMain })
   
 @register.simple_tag
 def bid_short(bid, **kwargs):

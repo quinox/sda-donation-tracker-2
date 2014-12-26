@@ -2,10 +2,10 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.db.models import Sum
 
-from tracker.validators import *
+from donation_tracker.validators import *
 from event import Event
 
-from tracker.models import Donation, SpeedRun
+from donation_tracker.models import Donation, SpeedRun
 
 from decimal import Decimal
 import pytz
@@ -49,7 +49,7 @@ class Prize(models.Model):
   deprecated_provided = models.CharField(max_length=64,blank=True,verbose_name='*DEPRECATED* Provided By') # Deprecated
   contributors = models.ManyToManyField('Donor', related_name='prizescontributed', blank=True, null=True)
   class Meta:
-    app_label = 'tracker'
+    app_label = 'donation_tracker'
     ordering = [ 'event__date', 'startrun__starttime', 'starttime', 'name' ]
     unique_together = ( 'name', 'event' )
   def natural_key(self):
@@ -148,7 +148,7 @@ class PrizeTicket(models.Model):
   donation = models.ForeignKey('Donation', related_name='tickets')
   amount = models.DecimalField(decimal_places=2,max_digits=20,validators=[positive,nonzero])
   class Meta:
-    app_label = 'tracker'
+    app_label = 'donation_tracker'
     verbose_name = 'Prize Ticket'
     ordering = [ '-donation__timereceived' ]
   def clean(self):
@@ -161,7 +161,7 @@ class PrizeWinner(models.Model):
   prize = models.ForeignKey('Prize', null=False, blank=False)
   emailsent = models.BooleanField(default=False, verbose_name='Email Sent')
   class Meta:
-    app_label = 'tracker'
+    app_label = 'donation_tracker'
     unique_together = ( 'prize', 'winner', )
   def validate_unique(self, **kwargs):
     if 'winner' not in kwargs and 'prize' not in kwargs and self.prize.category != None:
@@ -177,7 +177,7 @@ class PrizeCategory(models.Model):
   objects = PrizeCategoryManager()
   name = models.CharField(max_length=64,unique=True)
   class Meta:
-    app_label = 'tracker'
+    app_label = 'donation_tracker'
     verbose_name = 'Prize Category'
     verbose_name_plural = 'Prize Categories'
   def natural_key(self):

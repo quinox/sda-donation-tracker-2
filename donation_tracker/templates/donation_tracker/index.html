@@ -40,15 +40,15 @@
 	{{ agg.max|money }}/{{ agg.avg|money }}
 </div>
 <p align="center"><br /></p>
-<p align="center"><a href="{% url 'tracker.views.runindex' event=event.id %}">{% trans "View Runs" %}</a> ({{ count.runs }})</p>
-<p align="center"><a href="{% url 'tracker.views.prizeindex' event=event.id %}">{% trans "View Prizes" %}</a> ({{ count.prizes }})</p>
-<p align="center"><a href="{% url 'tracker.views.bidindex' event=event.id %}">{% trans "View Bids" %}</a> ({{ count.bids }})</p>
-<p align="center"><a href="{% url 'tracker.views.donorindex' event=event.id %}">{% trans "View Donors" %}</a> ({{ count.donors }})</p>
-<p align="center"><a href="{% url 'tracker.views.donationindex' event=event.id %}">{% trans "View Donations" %}</a> ({{ agg.count }})</p>
-<p align="center"><a href="{% url 'tracker.views.eventlist' %}">{% trans "Select another Event" %}</a></p>
+<p align="center"><a href="{% url 'donation_tracker.views.runindex' event=event.id %}">{% trans "View Runs" %}</a> ({{ count.runs }})</p>
+<p align="center"><a href="{% url 'donation_tracker.views.prizeindex' event=event.id %}">{% trans "View Prizes" %}</a> ({{ count.prizes }})</p>
+<p align="center"><a href="{% url 'donation_tracker.views.bidindex' event=event.id %}">{% trans "View Bids" %}</a> ({{ count.bids }})</p>
+<p align="center"><a href="{% url 'donation_tracker.views.donorindex' event=event.id %}">{% trans "View Donors" %}</a> ({{ count.donors }})</p>
+<p align="center"><a href="{% url 'donation_tracker.views.donationindex' event=event.id %}">{% trans "View Donations" %}</a> ({{ agg.count }})</p>
+<p align="center"><a href="{% url 'donation_tracker.views.eventlist' %}">{% trans "Select another Event" %}</a></p>
 <br />
 {% if event.id %}
-	<h2 align="center"><a href="{% url 'tracker.views.donate' event.id %}">Donate</a></h2>
+	<h2 align="center"><a href="{% url 'donation_tracker.views.donate' event.id %}">Donate</a></h2>
 {% endif %}
 {% endblock %}
 

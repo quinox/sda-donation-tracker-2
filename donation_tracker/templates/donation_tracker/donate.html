@@ -347,7 +347,7 @@
 		{% endif %}
 
 
-<form id="bidsform" action="{% url 'tracker.views.donate' event.id %}" method="post" onsubmit="return validateDonationForm();">
+<form id="bidsform" action="{% url 'donation_tracker.views.donate' event.id %}" method="post" onsubmit="return validateDonationForm();">
   {% csrf_token %}
 
   {{ bidsform.management_form }}

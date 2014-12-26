@@ -46,7 +46,7 @@
       {% for ancestor in ancestors %}
         <tr>
           <td colspan="5">
-            <a href="{% url 'tracker.views.bid' id=ancestor.id %}">
+            <a href="{% url 'donation_tracker.views.bid' id=ancestor.id %}">
               {{ ancestor.name | title }}
             </a>
           </td>
@@ -97,7 +97,7 @@
       {% for donationBid in donationBids %}
         <tr>
           <td {% if not perms.tracker.view_emails %}colspan="2"{% endif %}>
-            <a href="{% url 'tracker.views.donor' id=donationBid.donation.donor.id event=event.id %}">
+            <a href="{% url 'donation_tracker.views.donor' id=donationBid.donation.donor.id event=event.id %}">
               {% name donationBid.donation.donor %}
             </a>
           </td>
@@ -106,7 +106,7 @@
             {% datetime donationBid.donation.timereceived %}
           </td>
           <td>
-            <a href="{% url 'tracker.views.donation' id=donationBid.donation.id %}">{{ donationBid.amount|money }}</a>
+            <a href="{% url 'donation_tracker.views.donation' id=donationBid.donation.id %}">{{ donationBid.amount|money }}</a>
           </td>
         </tr>
       {% endfor %}
@@ -114,7 +114,7 @@
   {% endif %}
   
 	<p align="center">
-		<a href="{% url 'tracker.views.bidindex' event=event.id %}">
+		<a href="{% url 'donation_tracker.views.bidindex' event=event.id %}">
 			{% trans "Back to Bid Index" %}
 		</a>
 	</p>

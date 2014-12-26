@@ -3,7 +3,7 @@ from django.db.models import Q
 from django.db.models import Sum,Max
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from tracker.validators import *
+from donation_tracker.validators import *
 
 import calendar
 import urllib2

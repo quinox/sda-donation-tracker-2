@@ -67,6 +67,6 @@
       {% endfor %}
     </table>
 	{% endif %}
-	<p align="center"><a href="{% url 'tracker.views.runindex' event=event.id %}">{% trans "Back to Run Index" %}</a></p>
+	<p align="center"><a href="{% url 'donation_tracker.views.runindex' event=event.id %}">{% trans "Back to Run Index" %}</a></p>
 	{% include "tracker/navfooter.html" %}
 {% endblock %}

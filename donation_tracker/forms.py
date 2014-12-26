@@ -2,16 +2,16 @@ from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
-from tracker import models
-from tracker.validators import *
+from donation_tracker import models
+from donation_tracker.validators import *
 import paypal
 import re
 from decimal import *
 from django.forms import formsets
 import django.core.exceptions
 
-import tracker.fields
-import tracker.widgets
+import donation_tracker.fields
+import donation_tracker.widgets
 
 __all__ = [
 	'UsernameForm',
@@ -63,7 +63,7 @@ class DonationEntryForm(forms.Form):
     return self.cleaned_data
 
 class DonationBidForm(forms.Form):
-  bid = forms.fields.IntegerField(label="", required=False, widget=tracker.widgets.MegaFilterWidget(model="bidtarget"))
+  bid = forms.fields.IntegerField(label="", required=False, widget=donation_tracker.widgets.MegaFilterWidget(model="bidtarget"))
   amount = forms.DecimalField(decimal_places=2,max_digits=20, required=False, validators=[positive,nonzero], widget=forms.widgets.TextInput(attrs={'class': 'cdonationbidamount', 'type':'number'}))
   def clean_bid(self):
     try:
@@ -107,7 +107,7 @@ class DonationBidFormSetBase(forms.formsets.BaseFormSet):
 DonationBidFormSet = formsets.formset_factory(DonationBidForm, formset=DonationBidFormSetBase, max_num=DonationBidFormSetBase.max_bids)
 
 class PrizeTicketForm(forms.Form):
-  prize = forms.fields.IntegerField(label="", required=False, widget=tracker.widgets.MegaFilterWidget(model="prize"))
+  prize = forms.fields.IntegerField(label="", required=False, widget=donation_tracker.widgets.MegaFilterWidget(model="prize"))
   amount = forms.DecimalField(decimal_places=2,max_digits=20, required=False, validators=[positive,nonzero], widget=forms.widgets.TextInput(attrs={'class': 'cprizeamount', 'type':'number'}))
   def clean_prize(self):
     try:

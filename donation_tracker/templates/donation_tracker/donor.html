@@ -44,7 +44,7 @@
 				{% datetime donation.timereceived %}
 			</td>
 			<td>
-				<a href="{% url 'tracker.views.donation' id=donation.id %}">{{ donation.amount|money }}</a>
+				<a href="{% url 'donation_tracker.views.donation' id=donation.id %}">{{ donation.amount|money }}</a>
 			</td>
 			<td>
 				{{ donation.comment|length|yesno:_("Yes,No") }}
@@ -68,7 +68,7 @@
 	{% endfor %}
 	</table>
 
-	<p align="center"><a href="{% url 'tracker.views.donor' id=donor.id event=event.id %}{{ comments|yesno:',?comments' }}">
+	<p align="center"><a href="{% url 'donation_tracker.views.donor' id=donor.id event=event.id %}{{ comments|yesno:',?comments' }}">
 	{% include "tracker/commentslink.html" %}
 	</a></p>
   
@@ -134,6 +134,6 @@
     </table>
   {% endif %}
 
-	<p align="center"><a href="{% url 'tracker.views.donorindex' event=event.id %}">{% trans "Back to Donor Index" %}</a></p>
+	<p align="center"><a href="{% url 'donation_tracker.views.donorindex' event=event.id %}">{% trans "Back to Donor Index" %}</a></p>
 	{% include "tracker/navfooter.html" %}
 {% endblock %}

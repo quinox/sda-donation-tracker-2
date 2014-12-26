@@ -22,7 +22,7 @@
 {% endif %}
 <p><br /></p>
 <div class="footer">
-<form name="fopenid" action="{% url 'tracker.views.setusername' %}" method="post" width="20%">
+<form name="fopenid" action="{% url 'donation_tracker.views.setusername' %}" method="post" width="20%">
     {% csrf_token %}
     <fieldset>
         <label for="id_username">{% trans "Username" %}:</label>

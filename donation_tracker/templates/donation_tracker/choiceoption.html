@@ -3,38 +3,28 @@
 {% load i18n %}
 {% load url from future %}
 
-{% block title %}{% trans "Challenge Detail" %} -- {{ event.name|title }}{% endblock %}
+{% block title %}{% trans "Choice Option Detail" %} -- {{ event.name|title }}{% endblock %}
 
 {% block content %}
 	<div class="title">
 		<b>
-			{% trans "Game" %}:
+			{% trans "Run" %}:
 		</b>
-		{{ challenge.speedrun|title }}
+		<a href="{% url 'donation_tracker.views.run' id=choiceoption.choice.speedrun.id %}">{{ choiceoption.choice.speedrun|title }}</a>
 		<b>
-			{% trans "Challenge" %}:
+			{% trans "Choice" %}:
 		</b>
-		{{ challenge.name|title }}
+		<a href="{% url 'donation_tracker.views.choice' id=choiceoption.choice.id %}">{{ choiceoption.choice.name|title }}</a>
+		<b>
+			{% trans "Option" %}:
+		</b>
+		{{ choiceoption.name }}
 		<b>
 			{% trans "Total" %}:
 		</b>
 		{{ agg.amount|money }}
 	</div>
 	<table>
-	{% if challenge.description|length > 0 %}
-		<tr>
-			<th align="center" colspan="4">
-				<b>
-					{% trans "Description" %}
-				</b>
-			</th>
-		</tr>
-		<tr>
-			<td colspan="4">
-				{{ challenge.description|forumfilter }}
-			</td>
-		</tr>
-	{% endif %}
 		<tr>
 			<th {% if not perms.tracker.view_emails %}colspan="2"{% endif %}>
 				{% trans "Name" %}{% sort "name" %}
@@ -54,7 +44,7 @@
 	{% for bid in bids %}
 		<tr>
 			<td {% if not perms.tracker.view_emails %}colspan="2"{% endif %}>
-				<a href="{% url 'tracker.views.donor' id=bid.donation.donor.id event=challenge.speedrun.event.id %}">
+				<a href="{% url 'donation_tracker.views.donor' id=bid.donation.donor.id event=choiceoption.choice.speedrun.event.id %}">
 					{% name bid.donation.donor %}
 				</a>
 			</td>
@@ -63,7 +53,9 @@
 				{% datetime bid.donation.timereceived %}
 			</td>
 			<td>
-				<a href="{% url 'tracker.views.donation' id=bid.donation.id %}">{{ bid.amount|money }}</a>
+				<a href="{% url 'donation_tracker.views.donation' id=bid.donation.id %}">
+					{{ bid.amount|money }}
+				</a>
 			</td>
 		</tr>
 		{% if comments %}
@@ -78,14 +70,14 @@
 			{% endif %}
 
 			{% if forloop.counter < bids|length %}
-			<tr><th colspan="4"></th></tr>
+				<tr><th colspan="4"></th></tr>
 			{% endif %}
 		{% endif %}
 	{% endfor %}
 	</table>
-	<p align="center"><a href="{% url 'tracker.views.challenge' id=challenge.id %}{{ comments|yesno:',?comments' }}">
+	<p align="center"><a href="{% url 'donation_tracker.views.choiceoption' id=choiceoption.id %}{{ comments|yesno:',?comments' }}">
 	{% include "tracker/commentslink.html" %}
 	</a></p>
-	<p align="center"><a href="{% url 'tracker.views.challengeindex' event=challenge.speedrun.event.id %}">{% trans "Back to Challenge Index" %}</a></p>
+	<p align="center"><a href="{% url 'donation_tracker.views.choiceindex' event=choiceoption.choice.speedrun.event.id %}">{% trans "Back to Choice Index" %}</a></p>
 	{% include "tracker/navfooter.html" %}
 {% endblock %}

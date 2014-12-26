@@ -10,7 +10,7 @@
 		<b>
 			{% trans "Run" %}:
 		</b>
-		<a href="{% url 'tracker.views.run' id=choice.speedrun.id %}">{{ choice.speedrun.name|title }}</a>
+		<a href="{% url 'donation_tracker.views.run' id=choice.speedrun.id %}">{{ choice.speedrun.name|title }}</a>
 		<b>
 			{% trans "Choice" %}:
 		</b>
@@ -64,7 +64,7 @@
 		{% endif %}
 		<tr>
 			<td colspan="1" {% if comments %}align="center"{% endif %}>
-				<a href="{% url 'tracker.views.choiceoption' id=option.id %}">
+				<a href="{% url 'donation_tracker.views.choiceoption' id=option.id %}">
 					{{ option.name }}
 				</a>
 			</td>
@@ -121,12 +121,12 @@
 	{% endfor %}
 	</table>
 	<p align="center">
-		<a href="{% url 'tracker.views.choice' id=choice.id %}{{ comments|yesno:',?comments' }}">
+		<a href="{% url 'donation_tracker.views.choice' id=choice.id %}{{ comments|yesno:',?comments' }}">
 			{% include "tracker/commentslink.html" %}
 		</a>
 	</p>
 	<p align="center">
-		<a href="{% url 'tracker.views.choiceindex' event=choice.speedrun.event.id %}">
+		<a href="{% url 'donation_tracker.views.choiceindex' event=choice.speedrun.event.id %}">
 			{% trans "Back to Choice Index" %}
 		</a>
 	</p>

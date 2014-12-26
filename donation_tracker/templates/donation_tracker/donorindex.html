@@ -39,7 +39,7 @@
 		{% if donor.count > 0 %}
 			<tr>
 				<td>
-					<a href="{% url 'tracker.views.donor' id=donor.id event=event.id %}">{% name donor %}</a>
+					<a href="{% url 'donation_tracker.views.donor' id=donor.id event=event.id %}">{% name donor %}</a>
 				</td>
 				{% email donor.email "<td>.</td>" %}
 				<td>

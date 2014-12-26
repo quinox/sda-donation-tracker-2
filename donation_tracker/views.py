@@ -37,12 +37,12 @@ from paypal.standard.forms import PayPalPaymentsForm
 from paypal.standard.ipn.models import PayPalIPN
 from paypal.standard.ipn.forms import PayPalIPNForm
 
-from tracker.models import *
-from tracker.forms import *
-import tracker.filters as filters
+from donation_tracker.models import *
+from donation_tracker.forms import *
+import donation_tracker.filters as filters
 
-import tracker.viewutil as viewutil
-import tracker.paypalutil as paypalutil
+import donation_tracker.viewutil as viewutil
+import donation_tracker.paypalutil as paypalutil
 
 import gdata.spreadsheet.service
 import gdata.spreadsheet.text_db
@@ -91,20 +91,20 @@ def logout(request):
   auth_logout(request)
   return django.shortcuts.redirect(request.META.get('HTTP_REFERER', '/'))
 
-def tracker_response(request=None, template='tracker/index.html', qdict={}, status=200):
+def tracker_response(request=None, template='donation_tracker/index.html', qdict={}, status=200):
   starttime = datetime.datetime.now()
   context = RequestContext(request)
   language = translation.get_language_from_request(request)
   translation.activate(language)
   request.LANGUAGE_CODE = translation.get_language()
   profile = None
-  if request.user.is_authenticated():
-    try:
-      profile = request.user.get_profile()
-    except UserProfile.DoesNotExist:
-      profile = UserProfile()
-      profile.user = request.user
-      profile.save()
+  #if request.user.is_authenticated():
+  #  try:
+  #    profile = request.user.get_profile()
+  #  except UserProfile.DoesNotExist:
+  #    profile = UserProfile()
+  #    profile.user = request.user
+  #    profile.save()
   if profile:
     template = profile.prepend + template
     prepend = profile.prepend
@@ -124,9 +124,9 @@ def tracker_response(request=None, template='tracker/index.html', qdict={}, stat
   try:
     if request.user.username[:10]=='openiduser':
       qdict.setdefault('usernameform', UsernameForm())
-      return render(request, 'tracker/username.html', dictionary=qdict)
+      return render(request, 'donation_tracker/username.html', dictionary=qdict)
     resp = render(request, template, dictionary=qdict, status=status)
-    if 'queries' in request.GET and request.user.has_perm('tracker.view_queries'):
+    if 'queries' in request.GET and request.user.has_perm('donation_tracker.view_queries'):
       return HttpResponse(json.dumps(connection.queries, ensure_ascii=False, indent=1),content_type='application/json;charset=utf-8')
     return resp
   except Exception,e:
@@ -135,7 +135,7 @@ def tracker_response(request=None, template='tracker/index.html', qdict={}, stat
     raise
 
 def eventlist(request):
-  return tracker_response(request, 'tracker/eventlist.html', { 'events' : Event.objects.all() })
+  return tracker_response(request, 'donation_tracker/eventlist.html', { 'events' : Event.objects.all() })
 
 def index(request,event=None):
   event = viewutil.get_event(event)
@@ -156,18 +156,18 @@ def index(request,event=None):
   elif 'jsonp' in request.GET:
     callback = request.GET['jsonp']
     return HttpResponse('%s(%s);' % (callback, json.dumps({'count':count,'agg':agg},ensure_ascii=False)), content_type='text/javascript;charset=utf-8')
-  return tracker_response(request, 'tracker/index.html', { 'agg' : agg, 'count' : count, 'event': event })
+  return tracker_response(request, 'donation_tracker/index.html', { 'agg' : agg, 'count' : count, 'event': event })
 
 @never_cache
 def setusername(request):
   if not request.user.is_authenticated or request.user.username[:10]!='openiduser' or request.method != 'POST':
-    return django.shortcuts.redirect(reverse('tracker.views.index'))
+    return django.shortcuts.redirect(reverse('donation_tracker.views.index'))
   usernameform = UsernameForm(request.POST)
   if usernameform.is_valid():
     request.user.username = request.POST['username']
     request.user.save()
     return shortcuts.redirect(request.POST['next'])
-  return tracker_response(request, template='tracker/username.html', qdict={ 'usernameform' : usernameform })
+  return tracker_response(request, template='donation_tracker/username.html', qdict={ 'usernameform' : usernameform })
 
 modelmap = {
   'bid'           : Bid,
@@ -247,7 +247,7 @@ def donation_privacy_filter(model, fields):
 
 @never_cache
 def search(request):
-  authorizedUser = request.user.has_perm('tracker.can_search')
+  authorizedUser = request.user.has_perm('donation_tracker.can_search')
   #  return HttpResponse('Access denied',status=403,content_type='text/plain;charset=utf-8')
   try:
     searchParams = viewutil.request_params(request)
@@ -279,7 +279,7 @@ def search(request):
         donor_privacy_filter(searchtype, o['fields'])
         donation_privacy_filter(searchtype, o['fields'])
     resp = HttpResponse(json.dumps(jsonData,ensure_ascii=False),content_type='application/json;charset=utf-8')
-    if 'queries' in request.GET and request.user.has_perm('tracker.view_queries'):
+    if 'queries' in request.GET and request.user.has_perm('donation_tracker.view_queries'):
       return HttpResponse(json.dumps(connection.queries, ensure_ascii=False, indent=1),content_type='application/json;charset=utf-8')
     return resp
   except KeyError, e:
@@ -300,7 +300,7 @@ def add(request):
   try:
     addParams = viewutil.request_params(request)
     addtype = addParams['type']
-    if not request.user.has_perm('tracker.add_' + permmap.get(addtype,addtype)):
+    if not request.user.has_perm('donation_tracker.add_' + permmap.get(addtype,addtype)):
       return HttpResponse('Access denied',status=403,content_type='text/plain;charset=utf-8')
     Model = modelmap[addtype]
     newobj = Model()
@@ -316,7 +316,7 @@ def add(request):
     newobj.save()
     log.addition(request, newobj)
     resp = HttpResponse(serializers.serialize('json', Model.objects.filter(id=newobj.id), ensure_ascii=False),content_type='application/json;charset=utf-8')
-    if 'queries' in request.GET and request.user.has_perm('tracker.view_queries'):
+    if 'queries' in request.GET and request.user.has_perm('donation_tracker.view_queries'):
       return HttpResponse(json.dumps(connection.queries, ensure_ascii=False, indent=1),content_type='application/json;charset=utf-8')
     return resp
   except IntegrityError, e:
@@ -341,7 +341,7 @@ def delete(request):
   try:
     deleteParams = viewutil.request_params(request) 
     deltype = request.POST['type']
-    if not request.user.has_perm('tracker.delete_' + permmap.get(deltype,deltype)):
+    if not request.user.has_perm('donation_tracker.delete_' + permmap.get(deltype,deltype)):
       return HttpResponse('Access denied',status=403,content_type='text/plain;charset=utf-8')
     obj = modelmap[deltype].objects.get(pk=request.POST['id'])
     log.deletion(request, obj)
@@ -367,7 +367,7 @@ def edit(request):
   try:
     editParams = viewutil.request_params(request)
     edittype = editParams['type']
-    if not request.user.has_perm('tracker.change_' + permmap.get(edittype,edittype)):
+    if not request.user.has_perm('donation_tracker.change_' + permmap.get(edittype,edittype)):
       return HttpResponse('Access denied',status=403,content_type='text/plain;charset=utf-8')
     Model = modelmap[edittype]
     obj = Model.objects.get(pk=editParams['id'])
@@ -386,7 +386,7 @@ def edit(request):
     if changed:
       log.change(request,obj,u'Changed field%s %s.' % (len(changed) > 1 and 's' or '', ', '.join(changed)))
     resp = HttpResponse(serializers.serialize('json', Model.objects.filter(id=obj.id), ensure_ascii=False),content_type='application/json;charset=utf-8')
-    if 'queries' in request.GET and request.user.has_perm('tracker.view_queries'):
+    if 'queries' in request.GET and request.user.has_perm('donation_tracker.view_queries'):
       return HttpResponse(json.dumps(connection.queries, ensure_ascii=False, indent=1),content_type='application/json;charset=utf-8')
     return resp
   except IntegrityError, e:
@@ -426,7 +426,7 @@ def bidindex(request, event=None):
     bidNameSpan = 2
   else:
     bidNameSpan = 1
-  return tracker_response(request, 'tracker/bidindex.html', { 'searchForm': searchForm, 'bids': bids, 'total': total, 'event': event, 'bidNameSpan' : bidNameSpan, 'choiceTotal': choiceTotal, 'challengeTotal': challengeTotal })
+  return tracker_response(request, 'donation_tracker/bidindex.html', { 'searchForm': searchForm, 'bids': bids, 'total': total, 'event': event, 'bidNameSpan' : bidNameSpan, 'choiceTotal': choiceTotal, 'challengeTotal': challengeTotal })
 
 def bid(request, id):
   try:
@@ -447,15 +447,15 @@ def bid(request, id):
     ancestors = bid.get_ancestors()
     event = bid.event if bid.event else bid.speedrun.event
     if not bid.istarget:
-      return tracker_response(request, 'tracker/bid.html', { 'event': event, 'bid' : bid, 'ancestors' : ancestors })
+      return tracker_response(request, 'donation_tracker/bid.html', { 'event': event, 'bid' : bid, 'ancestors' : ancestors })
     else:
       donationBids = DonationBid.objects.filter(bid__exact=id).filter(viewutil.DonationBidAggregateFilter)
       donationBids = donationBids.select_related('donation','donation__donor').order_by('-donation__timereceived')
       donationBids = fixorder(donationBids, orderdict, sort, order)
       comments = 'comments' in request.GET
-      return tracker_response(request, 'tracker/bid.html', { 'event': event, 'bid' : bid, 'comments' : comments, 'donationBids' : donationBids, 'ancestors' : ancestors })
+      return tracker_response(request, 'donation_tracker/bid.html', { 'event': event, 'bid' : bid, 'comments' : comments, 'donationBids' : donationBids, 'ancestors' : ancestors })
   except Bid.DoesNotExist:
-    return tracker_response(request, template='tracker/badobject.html', status=404)
+    return tracker_response(request, template='donation_tracker/badobject.html', status=404)
 
 def donorindex(request,event=None):
   event = viewutil.get_event(event)
@@ -506,10 +506,10 @@ def donorindex(request,event=None):
   #  donors = donors.filter(lastname__isnull=False)
   #  if event.id:
   #    donors = donors.extra(select={
-  #      'amount': 'SELECT SUM(amount) FROM tracker_donation WHERE tracker_donation.donor_id = tracker_donor.id AND tracker_donation.event_id = %d' % event.id,
-  #      'count' : 'SELECT COUNT(*) FROM tracker_donation WHERE tracker_donation.donor_id = tracker_donor.id AND tracker_donation.event_id = %d' % event.id,
-  #      'max' : 'SELECT MAX(amount) FROM tracker_donation WHERE tracker_donation.donor_id = tracker_donor.id AND tracker_donation.event_id = %d' % event.id,
-  #      'avg' : 'SELECT AVG(amount) FROM tracker_donation WHERE tracker_donation.donor_id = tracker_donor.id AND tracker_donation.event_id = %d' % event.id,
+  #      'amount': 'SELECT SUM(amount) from donation_tracker_donation WHERE tracker_donation.donor_id = tracker_donor.id AND tracker_donation.event_id = %d' % event.id,
+  #      'count' : 'SELECT COUNT(*) from donation_tracker_donation WHERE tracker_donation.donor_id = tracker_donor.id AND tracker_donation.event_id = %d' % event.id,
+  #      'max' : 'SELECT MAX(amount) from donation_tracker_donation WHERE tracker_donation.donor_id = tracker_donor.id AND tracker_donation.event_id = %d' % event.id,
+  #      'avg' : 'SELECT AVG(amount) from donation_tracker_donation WHERE tracker_donation.donor_id = tracker_donor.id AND tracker_donation.event_id = %d' % event.id,
   #      })
   #  else:
   #    donors = donors.annotate(amount=Sum('donation__amount'), count=Count('donation__amount'), max=Max('donation__amount'), avg=Avg('donation__amount'))
@@ -521,7 +521,7 @@ def donorindex(request,event=None):
 
   donors = filter(lambda d: d.count > 0, donors)
 
-  fulllist = request.user.has_perm('tracker.view_full_list') and page == 'full'
+  fulllist = request.user.has_perm('donation_tracker.view_full_list') and page == 'full'
   pages = Paginator(donors,50)
 
   if fulllist:
@@ -537,7 +537,7 @@ def donorindex(request,event=None):
       page = pages.num_pages
     donors = pageinfo.object_list
 
-  return tracker_response(request, 'tracker/donorindex.html', { 'searchForm': searchForm, 'donors' : donors, 'event' : event, 'pageinfo' : pageinfo, 'page' : page, 'fulllist' : fulllist, 'sort' : sort, 'order' : order })
+  return tracker_response(request, 'donation_tracker/donorindex.html', { 'searchForm': searchForm, 'donors' : donors, 'event' : event, 'pageinfo' : pageinfo, 'page' : page, 'fulllist' : fulllist, 'sort' : sort, 'order' : order })
 
 def donor(request,id,event=None):
   try:
@@ -548,9 +548,9 @@ def donor(request,id,event=None):
       donations = donations.filter(event=event)
     comments = 'comments' in request.GET
     agg = donations.aggregate(amount=Sum('amount'), count=Count('amount'), max=Max('amount'), avg=Avg('amount'))
-    return tracker_response(request, 'tracker/donor.html', { 'donor' : donor, 'donations' : donations, 'agg' : agg, 'comments' : comments, 'event' : event })
+    return tracker_response(request, 'donation_tracker/donor.html', { 'donor' : donor, 'donations' : donations, 'agg' : agg, 'comments' : comments, 'event' : event })
   except Donor.DoesNotExist:
-    return tracker_response(request, template='tracker/badobject.html', status=404)
+    return tracker_response(request, template='donation_tracker/badobject.html', status=404)
 
 def donationindex(request,event=None):
   event = viewutil.get_event(event)
@@ -577,7 +577,7 @@ def donationindex(request,event=None):
     searchParams['event'] = event.id
   donations = filters.run_model_query('donation', searchParams, user=request.user)
   donations = fixorder(donations, orderdict, sort, order)
-  fulllist = request.user.has_perm('tracker.view_full_list') and page == 'full'
+  fulllist = request.user.has_perm('donation_tracker.view_full_list') and page == 'full'
   pages = Paginator(donations,50)
   if fulllist:
     pageinfo = { 'paginator' : pages, 'has_previous' : False, 'has_next' : False, 'paginator.num_pages' : pages.num_pages }
@@ -592,7 +592,7 @@ def donationindex(request,event=None):
       page = pages.num_pages
     donations = pageinfo.object_list
   agg = donations.aggregate(amount=Sum('amount'), count=Count('amount'), max=Max('amount'), avg=Avg('amount'))
-  return tracker_response(request, 'tracker/donationindex.html', { 'searchForm': searchForm, 'donations' : donations, 'pageinfo' :  pageinfo, 'page' : page, 'fulllist' : fulllist, 'agg' : agg, 'sort' : sort, 'order' : order, 'event': event })
+  return tracker_response(request, 'donation_tracker/donationindex.html', { 'searchForm': searchForm, 'donations' : donations, 'pageinfo' :  pageinfo, 'page' : page, 'fulllist' : fulllist, 'agg' : agg, 'sort' : sort, 'order' : order, 'event': event })
 
 def donation(request,id):
   try:
@@ -600,9 +600,9 @@ def donation(request,id):
     event = donation.event
     donor = donation.donor
     donationbids = DonationBid.objects.filter(donation=id).select_related('bid','bid__speedrun','bid__event')
-    return tracker_response(request, 'tracker/donation.html', { 'event': event, 'donation' : donation, 'donor' : donor, 'donationbids' : donationbids })
+    return tracker_response(request, 'donation_tracker/donation.html', { 'event': event, 'donation' : donation, 'donor' : donor, 'donationbids' : donationbids })
   except Donation.DoesNotExist:
-    return tracker_response(request, template='tracker/badobject.html', status=404)
+    return tracker_response(request, template='donation_tracker/badobject.html', status=404)
 
 def runindex(request,event=None):
   event = viewutil.get_event(event)
@@ -616,7 +616,7 @@ def runindex(request,event=None):
     searchParams['event'] = event.id
   runs = filters.run_model_query('run', searchParams, user=request.user)
   runs = runs.select_related('runners').annotate(hasbids=Sum('bids'))
-  return tracker_response(request, 'tracker/runindex.html', { 'searchForm': searchForm, 'runs' : runs, 'event': event })
+  return tracker_response(request, 'donation_tracker/runindex.html', { 'searchForm': searchForm, 'runs' : runs, 'event': event })
 
 def run(request,id):
   try:
@@ -629,9 +629,9 @@ def run(request,id):
     topLevelBids = filter(lambda bid: bid.parent == None, bids)
     bids = topLevelBids
 
-    return tracker_response(request, 'tracker/run.html', { 'event': event, 'run' : run, 'runners': runners, 'bids' : topLevelBids, 'bidsCache' : bidsCache })
+    return tracker_response(request, 'donation_tracker/run.html', { 'event': event, 'run' : run, 'runners': runners, 'bids' : topLevelBids, 'bidsCache' : bidsCache })
   except SpeedRun.DoesNotExist:
-    return tracker_response(request, template='tracker/badobject.html', status=404)
+    return tracker_response(request, template='donation_tracker/badobject.html', status=404)
 
 def prizeindex(request,event=None):
   event = viewutil.get_event(event)
@@ -645,7 +645,7 @@ def prizeindex(request,event=None):
     searchParams['event'] = event.id
   prizes = filters.run_model_query('prize', searchParams, user=request.user)
   prizes = prizes.select_related('startrun','endrun','category').prefetch_related('winners')
-  return tracker_response(request, 'tracker/prizeindex.html', { 'searchForm': searchForm, 'prizes' : prizes })
+  return tracker_response(request, 'donation_tracker/prizeindex.html', { 'searchForm': searchForm, 'prizes' : prizes })
 
 def prize(request,id):
   try:
@@ -658,17 +658,17 @@ def prize(request,id):
       games = SpeedRun.objects.filter(starttime__gte=SpeedRun.objects.get(pk=prize.startrun.id).starttime,endtime__lte=SpeedRun.objects.get(pk=prize.endrun.id).endtime)
     if prize.category:
       category = PrizeCategory.objects.get(pk=prize.category.id)
-    return tracker_response(request, 'tracker/prize.html', { 'event': event, 'prize' : prize, 'games' : games,  'category': category, 'contributors': contributors })
+    return tracker_response(request, 'donation_tracker/prize.html', { 'event': event, 'prize' : prize, 'games' : games,  'category': category, 'contributors': contributors })
   except Prize.DoesNotExist:
-    return tracker_response(request, template='tracker/badobject.html', status=404)
+    return tracker_response(request, template='donation_tracker/badobject.html', status=404)
 
 @never_cache
 def prize_donors(request,id):
   try:
-    if not request.user.has_perm('tracker.change_prize'):
+    if not request.user.has_perm('donation_tracker.change_prize'):
       return HttpResponse('Access denied',status=403,content_type='text/plain;charset=utf-8')
     resp = HttpResponse(json.dumps(Prize.objects.get(pk=id).eligible_donors()),content_type='application/json;charset=utf-8')
-    if 'queries' in request.GET and request.user.has_perm('tracker.view_queries'):
+    if 'queries' in request.GET and request.user.has_perm('donation_tracker.view_queries'):
       return HttpResponse(json.dumps(connection.queries, ensure_ascii=False, indent=1),content_type='application/json;charset=utf-8')
     return resp
   except Prize.DoesNotExist:
@@ -680,12 +680,12 @@ def prize_donors(request,id):
 # for a simplified prize drawing page
 def draw_prize(request,id):
   try:
-    if not request.user.has_perm('tracker.change_prize'):
+    if not request.user.has_perm('donation_tracker.change_prize'):
       return HttpResponse('Access denied',status=403,content_type='text/plain;charset=utf-8')
     prize = Prize.objects.get(pk=id)
     eligible = prize.eligible_donors()
     key = hash(json.dumps(eligible))
-    if 'queries' in request.GET and request.user.has_perm('tracker.view_queries'):
+    if 'queries' in request.GET and request.user.has_perm('donation_tracker.view_queries'):
       return HttpResponse(json.dumps(connection.queries, ensure_ascii=False, indent=1),content_type='application/json;charset=utf-8')
     if prize.maxed_winners():
       return HttpResponse(json.dumps({'error': 'Prize already has a winner', 'winners': [winner.id for winner in prize.winners.all()]},ensure_ascii=False),status=400,content_type='application/json;charset=utf-8')
@@ -723,12 +723,12 @@ def draw_prize(request,id):
 
 @never_cache
 def merge_schedule(request,id):
-  if not request.user.has_perm('tracker.sync_schedule'):
+  if not request.user.has_perm('donation_tracker.sync_schedule'):
     return tracker_response(request, template='404.html', status=404)
   try:
     event = Event.objects.get(pk=id)
   except Event.DoesNotExist:
-    return tracker_response(request, template='tracker/badobject.html', status=404)
+    return tracker_response(request, template='donation_tracker/badobject.html', status=404)
   try:
     numRuns = viewutil.merge_schedule_gdoc(event)
   except Exception as e:
@@ -791,9 +791,9 @@ def donate(request, event):
           "cmd": "_donations",
           "business": donation.event.paypalemail,
           "item_name": donation.event.receivername,
-          "notify_url": serverURL + reverse('tracker.views.ipn'),
-          "return_url": serverURL + reverse('tracker.views.paypal_return'),
-          "cancel_return": serverURL + reverse('tracker.views.paypal_cancel'),
+          "notify_url": serverURL + reverse('donation_tracker.views.ipn'),
+          "return_url": serverURL + reverse('donation_tracker.views.paypal_return'),
+          "cancel_return": serverURL + reverse('donation_tracker.views.paypal_cancel'),
           "custom": str(donation.id) + ":" + donation.domainId,
           "currency_code": donation.event.paypalcurrency,
         }
